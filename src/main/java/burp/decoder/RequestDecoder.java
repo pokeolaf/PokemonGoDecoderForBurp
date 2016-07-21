@@ -1,6 +1,5 @@
 package burp.decoder;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;

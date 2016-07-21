@@ -1,7 +1,5 @@
 package burp.decoder;
 
-import javax.management.RuntimeErrorException;
-
 import burp.decoder.Decoder.IRequestDecoder;
 
 public class PogoDecoder {
