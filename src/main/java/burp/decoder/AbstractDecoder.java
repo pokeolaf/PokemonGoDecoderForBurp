@@ -23,7 +23,7 @@ public abstract class AbstractDecoder implements Decoder {
 		return message;
 	}
 
-	protected Description StringDescriptionFromMessage(Message message) {
+	protected Description stringDescriptionFromMessage(Message message) {
 		return new Description.STRING(message.toString().replaceAll("\\\\n", "\n"));
 	}
 
@@ -31,7 +31,7 @@ public abstract class AbstractDecoder implements Decoder {
 		return parser.parse(type, bytes);
 	}
 
-	protected ByteString toStringWithCheck(ByteString bytes, Message foo) {
+	protected ByteString toStringWithCheck(ByteString bytes, Message foo) throws ProtoDefinitionFaultyException {
 		String s = foo.toString();
 		Optional<Integer> maxLength = getMaxLength();
 		if (maxLength.isPresent()) {
@@ -40,7 +40,7 @@ public abstract class AbstractDecoder implements Decoder {
 			}
 		}
 		if (foo.toByteString().size() != bytes.size()) {
-			throw new RuntimeException("Proto definition fault for type: " + foo.getClass().getName());
+			throw new ProtoDefinitionFaultyException("Proto definition faulty for type: " + foo.getClass().getName());
 		}
 		return ByteString.copyFrom(s.getBytes());
 	}
@@ -67,6 +67,10 @@ public abstract class AbstractDecoder implements Decoder {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	protected ByteString byteStringFromException(ProtoDefinitionFaultyException e) {
+		return ByteString.copyFrom(e.getMessage().getBytes());
 	};
 
 }

@@ -31,7 +31,7 @@ public class RequestDecoder extends AbstractDecoder implements burp.decoder.Deco
 				parsedRequests.add(parseFrom(request));
 			}
 			injectPrivateObject(requestEnvelop, parsedRequests, "requests_");
-			return new Description.STRING(requestEnvelop.toString());
+			return stringDescriptionFromMessage(requestEnvelop);
 		} catch (InvalidProtocolBufferException e) {
 			throw new RuntimeException(e);
 		}
@@ -43,7 +43,12 @@ public class RequestDecoder extends AbstractDecoder implements burp.decoder.Deco
 
 	private Request parseFrom(Request request) {
 		Message foo = parseMesage(request.getRequestType(), request.getRequestMessage());
-		ByteString bytes = toStringWithCheck(request.getRequestMessage(), foo);
+		ByteString bytes;
+		try {
+			bytes = toStringWithCheck(request.getRequestMessage(), foo);
+		} catch (ProtoDefinitionFaultyException e) {
+			bytes = byteStringFromException(e);
+		}
 		injectPrivateObject(request, bytes, "requestMessage_");
 		return request;
 	}
