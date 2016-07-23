@@ -23,7 +23,7 @@ public abstract class AbstractDecoder implements Decoder {
 		return message;
 	}
 
-	protected Description StringDescriptionFromMessage(Message message) {
+	protected Description stringDescriptionFromMessage(Message message) {
 		return new Description.STRING(message.toString().replaceAll("\\\\n", "\n"));
 	}
 

@@ -1,10 +1,12 @@
 package burp;
 
 import java.awt.Component;
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
-import directory.passive.burp.BurpBodyExtractor;
-import directory.passive.burp.decoder.PogoDecoder;
+import burp.decoder.BurpBodyExtractor;
+import burp.decoder.PogoDecoder;
 
 public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
 	private PrintStream out;
@@ -21,24 +23,23 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
 	@Override
 	public IMessageEditorTab createNewInstance(IMessageEditorController controller, boolean editable) {
 		IExtensionHelpers helpers = callbacks.getHelpers();
-		PogoDecoder decoder = new PogoDecoder(new BurpBodyExtractor(helpers));
-		TheTab tab = new TheTab(controller, editable, decoder);
+		TheTab tab = new TheTab(controller, editable, new BurpBodyExtractor(helpers));
 		return tab;
 	}
 
 	class TheTab implements IMessageEditorTab {
 		private final IMessageEditorController controller;
 		private final ITextEditor txtInput;
-		private PogoDecoder decoder;
+		private BurpBodyExtractor extractor;
 
 		private byte[] currentMessage = "COFFEE".getBytes();
 
-		public TheTab(IMessageEditorController controller, boolean editable, PogoDecoder decoder) {
-			if (controller == null || decoder == null) {
+		public TheTab(IMessageEditorController controller, boolean editable, BurpBodyExtractor extractor) {
+			if (controller == null || extractor == null) {
 				throw new IllegalArgumentException();
 			}
 			this.controller = controller;
-			this.decoder = decoder;
+			this.extractor = extractor;
 			txtInput = callbacks.createTextEditor();
 			txtInput.setEditable(editable);
 			txtInput.setText(currentMessage);
@@ -76,14 +77,23 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
 
 		@Override
 		public void setMessage(byte[] content, boolean isRequest) {
-			if (isRequest) {
-				decoder.decode(content, null);
-				currentMessage = decoder.getRequestDescription().asBytes();
-			} else {
-				decoder.decode(controller.getRequest(), controller.getResponse());
-				currentMessage = decoder.getResponseDescription().asBytes();
+			currentMessage = "set new...".getBytes();
+			txtInput.setText(currentMessage);
+			try {
+				PogoDecoder decoder = new PogoDecoder(extractor);
+				if (isRequest) {
+					decoder.decode(content, null);
+					currentMessage = decoder.getRequestDescription().asBytes();
+				} else {
+					decoder.decode(controller.getRequest(), controller.getResponse());
+					currentMessage = decoder.getResponseDescription().asBytes();
+				}
+			} catch (Exception e) {
+				ByteArrayOutputStream bs = new ByteArrayOutputStream();
+				e.printStackTrace(new PrintWriter(bs));
+				currentMessage = bs.toByteArray();
+				throw e;
 			}
-			out.println("setting text");
 			txtInput.setText(currentMessage);
 		}
 

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 
 import POGOProtos.Networking.Envelopes.ResponseEnvelopeOuterClass.ResponseEnvelope;
@@ -46,7 +45,7 @@ public class ResponseDecoder extends AbstractDecoder implements Decoder.IRespons
 			}
 
 			injectPrivateObject(responseEnvelop, parsed, "returns_");
-			return StringDescriptionFromMessage(responseEnvelop);
+			return stringDescriptionFromMessage(responseEnvelop);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
