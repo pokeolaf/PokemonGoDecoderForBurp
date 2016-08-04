@@ -3,6 +3,7 @@ package burp.decoder;
 import java.util.Arrays;
 
 import burp.IExtensionHelpers;
+import pokeolaf.decoder.BodyExtractor;
 
 public class BurpBodyExtractor implements BodyExtractor {
 
